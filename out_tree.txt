@@ -1,0 +1,21 @@
+.
+|-- Docs
+|-- Readme.txt
+|-- Src
+|   |-- IMSLZY_Lib_ComPersonProfileAnalysis.py
+|   |-- IMSLZY_Lib_ComPersonProfileAnalysis.pyc
+|   |-- IMSLZY_Parse_PersonList_Profile.py
+|   |-- IMSLZY_Parse_SinglePerson_Profile.py
+|   |-- IMSLZY_Test_Lib_ComPersonProfileAnalysis.py
+|   |-- IMSLZY_Test_UsingJson.py
+|   `-- IMSLZY_Test_UsingJson.pyc
+`-- Test
+    |-- IMSLZY_Seg_PersonProfiles.py
+    |-- Input
+    |-- Output_Multi
+    |-- test_Basic_Info.php
+    |-- test_lst.lst
+    |-- test.php
+    `-- test_Working_Exp.php
+
+5 directories, 13 files
