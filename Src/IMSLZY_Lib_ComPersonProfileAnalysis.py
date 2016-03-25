@@ -1,17 +1,22 @@
 #coding:utf-8
-'''
+"""
 #########################################
-#   Title:ZyTestPyReg.py
-    Function:
-        测试正则表达式，进行规则化人物信息提取。
-    Date:2016.01.12
+    Title:          IMSLZY_Lib_ComPersonProfileAnalysis.py
+    Function:       库函数，对人物简历内容进行解析，从纯文本到Json数据结构。
+    First Created:  2016.01.12
+    Last Modified:  03.24
+    Author:         yang.zhang(yang.zhang@imsl.org.cn)
+
 #########################################
-'''
+"""
+
+
 import re
 import jieba
 import jieba.posseg as pseg
 import sys
 import copy
+from IMSLZY_Vars_Lib_ComPersonProfileAnalysis import *
 
 # File Coding.
 # print "Old File Encoding = ",sys.getfilesystemencoding()
@@ -19,69 +24,10 @@ reload(sys)
 sys.setdefaultencoding("utf-8")
 # print "New File Encoding = ",sys.getfilesystemencoding()
 
-# PersonProfileFilename = "PersonProfileData.txt"
-# PersonProfileFilename = "PersonProfileDataDir/PersonProfile_0121_DataClean.txt"
+
 
 PersonProfileFilename = "PersonProfileDataDir/PerProWithName_0128_3.txt"
-TEST_PERSON_NUM = 500
 
-# To Text or Markdown.
-If_MarkDown_Choice = 1
-Need_WorkingTime = 0
-Show_Profile_Sents = 1
-Show_Profile_Str = 0
-Cur_Year = 2015
-Cur_CompanyName = u""
-Cur_PersonName = u""
-MIN_TIMEEXP_LEN = 3 # 判断数量词是否为有效的时间表达，设置的最小长度，即"第一届"被视为非时间表达。
-TIME_GAP_LIMIT = 6
-# Set Org Ends Syns;
-# “公司”分割；
-OrgName_Ends_List = [u"分行", u"有限公司", u"公司", u"本公司", u"）", u")", u"厂", u"设备厂", u"总厂",  u"集团", u"会社", u"支行",
-                     u"分行", u"银行", u"事务所", u"学会", u"委员会", u"委",
-                     u"协会", u"大学", u"小学", u"司", u"局", u"某局", u"地矿局", u"有限", u"网易", u"网", u"在线", u"香港立法会", u"非线" , u"》", u">>", u"供销社", u"煤矿", u"研究所", u"中心"]    # 实例表明，此处公司简称的结束符也是有顺序的。
-
-# 人工筛选公司名
-Editable_Org_Names_List = [u"谷歌中国"]
-
-OrgName_Ends_List = Editable_Org_Names_List + OrgName_Ends_List
-
-Invalid_Org_Names_List = [u"参加", u"项目"]
-
-Hidden_Time_Syn_List = [u"现任", u"曾", u"曾任", u"曾任职", u"历任", u"目前", u"先后", u"就任", u"兼任"]
-Basic_info_Syn_List = [u"出生", u"岁", u"毕业", u"学历", u"国籍", u"汉族", u"攻读", u"硕士",u"大专", u"工商管理学士", u"就读", u"男", u"女"]
-
-
-PreWorking_Org_Tips_List = [u"任职于", u"曾任职", u"任职於", u"工作于", u"供职于", u"入", u"创办", u"创建", u"就职于", u"创立"] # 提示下文，是纯粹的 机构名；
-Org_Name_Start_Syn_List = [u"加入", u"进入", u"入", u"创办", u"创建", u"创立", u"任职", u"就职",
-                           u"担任", u"出任", u"任", u"兼任",  u"任教于", u"于",u"在", u"系", u"是", u"为",
-                           u"起任", u"创建", u"加盟", u"组建"] # 处理中文，尽可能都转成unicode，len是文字个数，那么，当中英文混合？ 提示下文，为[机构+职称];
- 
-Department_Name_List = [u"实验室", u"生产科", u"办公厅", u"秘书处", u"视讯部", u"大客户部", u"资产管理部", u"研究发展部", u"事业部",
-                        u"供应部", u"行政部", u"运输部", u"财务处", u"技术部", u"市场部", u"质检部", u"标准化部",
-                        u"研发部", u"财务部", u"财务科", u"销售经理", u"投融资", u"信息中心", u"董事",
-                        u"监事会", u"董事会", u"分公司", u"博士生", u"党总支",
-                        u"总经理", u"副总经理", u"总经理助理", u"发行人", u"监事会主席", u"人力资源",
-                        u"机修车间", u"项目技术", u"副大队长"]  # 当 Org为此时，Org为空，Pos = Org + Pos;
-
-# 当Org首字开头词性在其中，则否定。
-No_OrgName_Start_Pos_List = [u"v", u"c", u"p"]
-
-Person_Profile_Data_Init = {
-    "Person_Basic_Info":
-        {
-            "Name": "Yang Zhang",
-            "Birth": "",
-            "Gender": "",
-            "Country": "",
-            "Nationality": "",
-            "Degree": "",
-            "School": ""
-        },
-    "Person_CurWork_Info":
-    #  str: time_str, dict: org + job
-        []
-    }
 
 Person_Profile_Data = copy.deepcopy(Person_Profile_Data_Init)   # 字典Dict类型数据，初始为空，后更新。
 
@@ -107,7 +53,7 @@ def DumpJsonData():
 
 def get_pseg_seq(str_content):
     """
-    :param str_content:
+    :param str_content: 待得到分词和POS的文本。
     :return: two list, list of words + list of POS.
     """
     str_content = ChangeUnicode(str_content)
@@ -214,6 +160,7 @@ def CheckTimePos(PosSeq):
     InTimeFlag = False
     t_id_start = -1
     t_id_end = -1
+    # print "Posseq = ", PosSeq
     for pos_id, pos_tag in enumerate(PosSeq):
         # set start
         if (pos_id == 0 or PosSeq[pos_id - 1] != 'm') and pos_tag == 'm':
@@ -237,7 +184,7 @@ def CheckTimePos(PosSeq):
             TimeTupleList_New.append((TimeSeqStart[newtime_id], TimeSeqEnd[newtime_id]))
             break
             pass
-        if TimeSeqEnd[newtime_id] + TIME_GAP_LIMIT > TimeSeqStart[newtime_id+1]:  # 合并时间
+        if (TimeSeqEnd[newtime_id] + TIME_GAP_LIMIT > TimeSeqStart[newtime_id+1]) and u'x' not in PosSeq[TimeSeqEnd[newtime_id]: TimeSeqStart[newtime_id + 1]]:  # 当间隔过小，并且中间没有符号时，前后合并。
             TimeTupleList_New.append((TimeSeqStart[newtime_id], TimeSeqEnd[newtime_id + 1]))
             newtime_id += 2
             pass
@@ -494,24 +441,34 @@ def Get_Seqs_and_Times(OrgName):
         postag_pos_seq.append(word_postag.flag)
         pass
     TimeSeqStart, TimeSeqEnd = CheckTimePos(postag_pos_seq)
+    # print "After Check Time Pos , time seq start = ", TimeSeqStart, " time seq end = ", TimeSeqEnd
 
 
     # 过滤掉以单位开头的内容;
     InValid_Time_Syn_List = [u"年", u"月", u"日", u"千", u"万", u"亿"]
     invalid_seq_id_list = []
     for time_id in range(len(TimeSeqStart)):
+        time_str = u"".join(postag_words_seq[TimeSeqStart[time_id]: TimeSeqEnd[time_id] + 1])
         for ivalid_time_syn in InValid_Time_Syn_List:
             #if postag_words_seq[TimeSeqStart[time_id]].startswith(ivalid_time_syn) or (TimeSeqStart[time_id] == TimeSeqEnd[time_id]):
-            if postag_words_seq[TimeSeqStart[time_id]].startswith(ivalid_time_syn) or (len(postag_words_seq[TimeSeqStart[time_id]]) <= MIN_TIMEEXP_LEN):
+
+            time_str
+            if time_str.startswith(ivalid_time_syn) or (u"年" not in time_str and u"岁" not in time_str):
+                invalid_seq_id_list.append(time_id)
+                break
+            """
+            if postag_words_seq[TimeSeqStart[time_id]].startswith(ivalid_time_syn) or (u"年" not in postag_words_seq[TimeSeqStart[time_id]] and u"岁" not in  )):
                 invalid_seq_id_list.append(time_id)
                 break
                 pass
+            """
             pass
         pass
-    # print "In DetectingWorkingTime, Time start seq = ", TimeSeqStart, "Time end seq = ", TimeSeqEnd
+    # print  "In DetectingWorkingTime, Time start seq = ", TimeSeqStart, "Time end seq = ", TimeSeqEnd
     # print "Invalid seq list = ", invalid_seq_id_list
     TimeSeqStart = [TimeSeqStart[time_seq_id] for time_seq_id in range(len(TimeSeqStart)) if time_seq_id not in invalid_seq_id_list]
     TimeSeqEnd = [TimeSeqEnd[time_seq_id] for time_seq_id in range(len(TimeSeqEnd)) if time_seq_id not in invalid_seq_id_list]
+    # print "Valid? DetectingWorkingTime, Time start seq = ", TimeSeqStart, "Time end seq = ", TimeSeqEnd
 
     # 添加对"现任，曾任，至今"等隐藏时间词的支持;
 
@@ -530,7 +487,7 @@ def Get_Seqs_and_Times(OrgName):
     TimeSeqEnd.sort()
 
     # print "Into Detecting working times, Org Names = "
-    return postag_words_seq, postag_pos_seq,TimeSeqStart,TimeSeqEnd
+    return postag_words_seq, postag_pos_seq, TimeSeqStart, TimeSeqEnd
     pass
 
 
@@ -638,7 +595,7 @@ def Check_WorkingSent(Cur_Working_Sent):
         2) 符号和关键字的划分，层次单元划分；
     """
     global Person_Profile_Data
-    org_tip_list = [u"在", u"于", u"加入", u"就职于"]
+    org_tip_list = [u"在", u"于", u"於", u"加入", u"就职于"]
     pos_tip_list = [u"担任", u"为", u"任", u"就职", u"任职", u"历任", u"工作"]
     Cur_Working_Sent = ChangeUnicode(Cur_Working_Sent)
     # print "Cur Working Sent = ", Cur_Working_Sent
@@ -1152,7 +1109,7 @@ def Divide_Pre_Cur_Working(ProfileStr):
     # Step: 2) Detect Cur and Pre Working Exps;
     Maybe_Working_WordsList = [u"现任", u"曾任", u"担任", u"任职", u"历任", u"兼任", u"任", u"兼", u"经理", u"董事", u"监事", u"部长", u"委员", u"会长", u"秘书长", u"处长", u"工程师"]
 
-    pre_tag_list = [u"历任", u"曾任", u"任职", u"任", u"工作", u"先后", u"就任", u"就职于", u"就职", u"创办", u"创立", u"创建"]
+    pre_tag_list = [u"历任", u"曾任", u"任职", u"任", u"工作", u"先后", u"就任", u"就职于", u"就职", u"创办", u"创立", u"创建", u"擢升"]
     cur_tag_list = [u"现任", u"至今", u"目前", u"兼任", u"起任", u"起"]
     pre_sents_list = []
     cur_sents_list = []
@@ -1180,7 +1137,7 @@ def Divide_Pre_Cur_Working(ProfileStr):
 
     if If_MarkDown_Choice == 1:
         basic_info_sent = ChangeUnicode("".join(info_sents_list))
-        #print "\t\t", basic_info_sent
+        print "\t\tBasic sent ", basic_info_sent
         Check_BasicInfo(basic_info_sent)
         '''
         for basic_info_sent in info_sents_list:
@@ -1201,7 +1158,7 @@ def Divide_Pre_Cur_Working(ProfileStr):
 
     else:
         for basic_info_sent in info_sents_list:
-            # print "\t\t",basic_info_sent
+            print "\t\tBasic sent.", basic_info_sent
             Check_BasicInfo(basic_info_sent)
         print u"\n**********Section-3:工作经历.**********"
         print u"\t**********Section-3-1:现任工作**********"
@@ -1213,6 +1170,80 @@ def Divide_Pre_Cur_Working(ProfileStr):
             #print "\t",pre_sent
             Check_WorkingSent(pre_sent)
             pass
+
+# 提取毕业院校：1) 找到"毕业"字样; 2) 找到"毕业"所在的单个句子，前后标点算进去；
+def get_school_snippet(profile_basic_str):
+    """
+    :param profile_basic_str: 包含基本信息的信息片段；
+    :return: 推测出的院校；
+    Steps:
+        1) 找到标记词"毕业"及位置；
+        2) 找到所在的短句片段，前后都是标点；Snippet.
+        3) 找到学校的开头和结尾;
+    """
+    school_tip_word_list = [u"毕业", u"就读", u"攻读", u"学位", u"学士学位", u"硕士学位", u"博士学位", u"学习"]
+    school_tip_word_index = 0
+    school_start_words_index = 0
+    school_end_words_index = 0
+    basic_str_words_seq, basic_str_pos_seq = get_pseg_seq(profile_basic_str)
+    for school_tip_word in school_tip_word_list:
+        if school_tip_word in basic_str_words_seq:
+            school_tip_word_index = basic_str_words_seq.index(school_tip_word)
+            school_start_words_index = school_tip_word_index
+            school_end_words_index = school_tip_word_index
+            break
+    if school_tip_word_index == 0:
+        return u""
+    print "school_tip_word_index = ", school_tip_word_index
+    """
+    for w in basic_str_words_seq:
+        print "w = ", w
+    for p in basic_str_pos_seq:
+        print "p = ", p
+
+    print "school_start_words_index = ", school_start_words_index, basic_str_pos_seq[school_start_words_index]
+    print "school_end_words_index = ", school_end_words_index, basic_str_pos_seq[school_end_words_index]
+    """
+
+    while (school_start_words_index >= 0 and basic_str_pos_seq[school_start_words_index] != u'x'):
+        school_start_words_index -= 1
+    while (school_end_words_index <= len(basic_str_words_seq) - 1 and basic_str_pos_seq[school_end_words_index] != u'x'):
+        school_end_words_index += 1
+    print "school start index = ", school_start_words_index, " school end index = ", school_end_words_index
+    school_snippet_str = "".join(basic_str_words_seq[school_start_words_index+1: school_end_words_index])
+    print "school sinppet str = ", school_snippet_str
+    school_snippet_str = ChangeUnicode(school_snippet_str)
+
+    # Get start and end index of school names.
+    school_start_str_index = 0
+    school_end_str_index = 0
+    Edu_Sch_Syn_List = [u"分校", u"学院", u"大学", u"党校", u"学校", u"中学"]
+    for edu_sch_syn in Edu_Sch_Syn_List:
+        if edu_sch_syn in school_snippet_str: # 大学只能用 String.
+            school_end_str_index = school_snippet_str.find(edu_sch_syn) + len(edu_sch_syn) # 从后往前找.
+            if school_end_str_index <= (len(school_snippet_str) - 1) and school_snippet_str[school_end_str_index] == u"）":
+                school_end_str_index += 1
+                pass
+            print "edu_sch_syn = ", edu_sch_syn
+            break
+            pass
+        pass
+
+    school_start_tip_words_list = [u"取得", u"获得", u"毕业于", u"于", u"毕业於", u"於", u"就读", u"在", u"月", u"年", u"持有", u"和"]
+    for school_start_tip_word in school_start_tip_words_list:
+        if school_start_tip_word in school_snippet_str:
+            school_start_str_index = school_snippet_str.index(school_start_tip_word) + len(school_start_tip_word)
+            print "school start tip word = ", school_start_tip_word
+            break
+    print "school start str index = ", school_start_str_index, " end str index = ", school_end_str_index
+    print "Start str = ", school_snippet_str[school_start_str_index], " End str = ", school_snippet_str[school_end_str_index - 1]
+    school_name = u""
+    school_name = u"".join(school_snippet_str[school_start_str_index : school_end_str_index])
+
+    print "School name = ", school_name
+
+    return school_name
+
 
 
 # 提取基本信息函数：Check_BasicInfo
@@ -1230,6 +1261,12 @@ def Check_BasicInfo(ProfileStr):
     person_profile_head = ProfileStr.split()[0].split('|||')
     Cur_CompanyName = person_profile_head[0]
     postag_words_seq, postag_pos_seq, TimeSeqStart, TimeSeqEnd = Get_Seqs_and_Times(ProfileStr)
+    for w_id in range(len(postag_words_seq)):
+        print "w = ", postag_words_seq[w_id], " pos = ", postag_pos_seq[w_id]
+    print len(TimeSeqStart)
+    for t_id in range(len(TimeSeqEnd)):
+        print ' start  = ', TimeSeqStart[t_id], " end = ", TimeSeqEnd[t_id]
+
     if len(TimeSeqStart) > 1:
         # print "More than 1 time in basic info."
         pass
@@ -1257,8 +1294,15 @@ def Check_BasicInfo(ProfileStr):
     # Age or Birth: 用时间数量词, 注意，end,start，包含首位;
     print "TimeSeqStart = ", TimeSeqStart
     if len(TimeSeqStart) > 0:
-        time_index_end, time_index_start = TimeSeqEnd[0], TimeSeqStart[0] # 第一个时间表达，默认为年龄或者出生时间
+        for time_i in range(len(TimeSeqEnd)):
+            time_str = u"".join(postag_words_seq[TimeSeqStart[time_i]: TimeSeqEnd[time_i] + 1])
+            if u"年" in time_str or u"岁" in time_str:
+                time_index_end, time_index_start = TimeSeqEnd[time_i], TimeSeqStart[time_i]
+                break
+
+        # time_index_end, time_index_start = TimeSeqEnd[0], TimeSeqStart[0] # 第一个时间表达，默认为年龄或者出生时间
         birth_age_str = "".join(postag_words_seq[time_index_start:time_index_end + 1])
+        print "birth age str = ", birth_age_str
         birth_age_str = Check_BirthInfo(birth_age_str)
         print u"\t*出生/年龄* = ", birth_age_str
         Person_Profile_Data["Person_Basic_Info"]["Birth"] = birth_age_str
@@ -1286,14 +1330,15 @@ def Check_BasicInfo(ProfileStr):
         pass
 
     # 学历：
-    Education_syn_List = [u"研究生", u"博士",u"硕士",u"硕士学位", u"本科",u"学士", u"工商管理学士", u"学士学位",u"专科",u"大专", u"中专", u"高中", u"职高", u"初中", u"EMBA", u"MBA", u"学历"]
-
+    Education_syn_List = [u"研究生", u"博士",u"硕士",u"硕士学位", u"本科",u"学士", u"工商管理学士", u"学士学位", u"大学专科", u"专科",u"大专", u"中专", u"高中", u"职高", u"初中", u"EMBA", u"MBA", u"学历"]
+    degree_list = [u"博士", u"硕士", u"大学", u"本科", u"专科", u"大学专科", u"中学"]
     edu_syn_index = 0
     edu_syn_content = ""
     for edu_syn in Education_syn_List:
         if edu_syn in postag_words_seq:
             edu_syn_index = postag_words_seq.index(edu_syn)
-            if postag_words_seq[edu_syn_index - 1] == "博士" or postag_words_seq[edu_syn_index - 1] == "硕士" or postag_words_seq[edu_syn_index - 1] == "大学":
+            #if postag_words_seq[edu_syn_index - 1] == "博士" or postag_words_seq[edu_syn_index - 1] == "硕士" or postag_words_seq[edu_syn_index - 1] == "大学":
+            if postag_words_seq[edu_syn_index - 1] in degree_list:
                 edu_syn_content = "".join(postag_words_seq[edu_syn_index - 1: edu_syn_index + 1])
                 pass
             else:
@@ -1305,29 +1350,12 @@ def Check_BasicInfo(ProfileStr):
         pass
 
     # 毕业院校: (毕业于|符号)开始，大学，学院，结尾;
-    Edu_School = ""
-    gra_sch_str = "毕业"
-    school_start_index = 0
-    school_end_str_index = 0
-    Edu_Sch_Syn_List = [u"分校", u"大学", u"学院", u"党校", u"学校"]
-    for edu_sch_syn in Edu_Sch_Syn_List:
-        if edu_sch_syn in ProfileStr: # 大学只能用 String.
-            school_end_str_index = ProfileStr.rfind(edu_sch_syn) + len(edu_sch_syn) # 从后往前找.
-            if school_end_str_index <= (len(ProfileStr) - 1) and ProfileStr[school_end_str_index] == u"）":
-                school_end_str_index += 1
-                pass
-            break
-            pass
-        pass
-    if school_end_str_index != 0:
-        rough_School = ProfileStr[:school_end_str_index]
-        #print "Rough School = ",rough_School
-        school_name = (re.split(u"于|，|。|；|,", rough_School))[-1] # 确定教育场所开头，毕业于字样或者往前第一个标点符号。
-        if len(school_name) > 2:
-            print u"\t*学校* = ", school_name
-            Person_Profile_Data["Person_Basic_Info"]["School"] = school_name
-            pass
-        pass
+    school_name = get_school_snippet(ProfileStr)
+    if len(school_name) > 2:
+        print u"\t*学校* = ", school_name
+        Person_Profile_Data["Person_Basic_Info"]["School"] = school_name
+
+
     pass
 
 
