@@ -17,7 +17,7 @@
 .
 |-- Docs												项目文档
 |-- Resource
-|	|-- dict.txt										待替换的Jieba分词词典
+|	`-- dict.txt										待替换的Jieba分词词典
 |-- Readme.txt											说明文档
 |-- Src													主功能代码目录
 |   |-- IMSLZY_Lib_ComPersonProfileAnalysis.py			库函数文件，对人物简历进行分析
@@ -41,6 +41,7 @@
 
 ## 三. 程序使用说明
 程序在 Server 192.168.0.17上经过测试可用。
+
 - 步骤：
 	- 更新词典
 	需要更新 `Jieba` 分词工具词典，词典在 `Resource/dict.txt` 中。
@@ -55,6 +56,7 @@
 	- 输入：均为个人简介文本文件，内容格式为：[所属公司名称]|||[个人姓名]|||[个人简介]
 	- 输出：JSON格式文件，Json格式定义如下。
 - 输出Json格式
+
 ```
 Person_Profile_Data_Init = {
     "Person_Basic_Info":
@@ -87,9 +89,9 @@ Person_Profile_Data_Init = {
 - 说明
 	每次最好先清空 ` OutpuMulti ` 目录。
 
-## 开发日志
+## 四.开发日志
 
-## 问题与待解决
+## 五.问题与待解决
 - 遗留问题
 由于主要采取"规则及模板标记"原则，因此可能出现以下问题：
 	- 噪声，会出现无关内容
