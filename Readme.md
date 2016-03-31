@@ -9,17 +9,19 @@
 
 技术上依赖于**中文分词及词性标注**。期待试用统计的方法。
 
-Demo 演示页面：[企业存照-简历解析模块](`192.168.0.178/ProfilesParsing_Demo/demo_index.php`)。
+Demo 演示页面：[企业存照-简历解析模块](`https://192.168.0.17/ProfilesParsing_Demo/index.php`)。
 
-主要作者：*IMSL实习生张杨*，<a href="yang.zhang@imsl.org.cn">yang.zhang@imsl.org.cn</a>。
+主要作者：*IMSL实习生张杨*，联系：<a href="yang.zhang@imsl.org.cn">yang.zhang@imsl.org.cn</a>。
 
 
 ## 二. 目录结构
 ```
 .
 |-- Docs												项目文档
+|	|-- Images
+|		`-- WebDemo.png									Web Demo 页面样例
 |-- PHP_Demo
-	`--index.php									Web Demo 测试PHP文件
+|	`-- index.php										Web Demo 测试PHP文件
 |-- Resource
 |	`-- dict.txt										待替换的Jieba分词词典
 |-- Readme.txt											说明文档
@@ -89,20 +91,22 @@ Person_Profile_Data_Init = {
 
 假设输入文件为 `profile.txt`放`Input/`目录下。
 - 举例说明
-	- Step-0：清空 `OutputMulti/`目录
+	- Step-0：准备工作：将`OutputMulti/`目录清空;
 	- Step-1：进入`Test`目录，分割文件: `python IMSLZY_Seg_PErsonProfiles.py Input/profile.txt`;
-	- Step-2：测试基本资料结果：`php -q test_Basic_Info.php`
-	- Step-3：测试工作经历结果：`php -q test_Working_Exp.php`
+	- Step-2：测试基本资料结果：`php -q test_Basic_Info.php`;
+	- Step-3：测试工作经历结果：`php -q test_Working_Exp.php`;
 
 ### 3. Web Demo
 为模块功能展示的动态网页页面目录。
 将 `PHP_Demo`目录放在浏览器可访问目录下，根据具体情况修改 `demo_index.php`, 具体为内部的`$exec_pyfilename`变量，注意写完整路径。
 
-在本机上可直接使用，URL=`192.168.0.178/ProfilesParsing_Demo/demo_index.php`。
+在本机上可直接使用，URL=`http://192.168.0.17/ProfilesParsing_Demo/demo_index.php`，样例结果如图。
+![img](https://github.com/csyoungz/Profiles_Parsing/tree/master/Docs/Images/WebDemo.PNG)
 
 ## 四.开发日志
+- 0331: 修复 时间表达提取，支持多个相近的时间表达融合; 准备些英文ReadMe;
 - 0329：完成 Demo 演示页面
-- 0324：修复第二批数据 Test/Input/company_0311.txt`中的Bugs
+- 0324：修复第二批数据 Test/Input/Input_PProfile_B.txt`中的Bugs
 
 ## 五.问题与待解决
 - 遗留问题
