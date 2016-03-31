@@ -77,11 +77,10 @@ Person_Profile_Data_Init = {
             "School": ""
         },
     "Person_CurWork_Info":
-    #  str: time_str, dict: org + job
         [
 			{
 				"Org":,
-				"Job"
+				"Job":
 			}
 		]
     }
@@ -100,8 +99,8 @@ Person_Profile_Data_Init = {
 为模块功能展示的动态网页页面目录。
 将 `PHP_Demo`目录放在浏览器可访问目录下，根据具体情况修改 `demo_index.php`, 具体为内部的`$exec_pyfilename`变量，注意写完整路径。
 
-在本机上可直接使用，URL=`http://192.168.0.17/ProfilesParsing_Demo/demo_index.php`，样例结果如图。
-![img](https://github.com/csyoungz/Profiles_Parsing/tree/master/Docs/Images/WebDemo.PNG)
+在本机上可直接使用，URL=`http://192.168.0.17/ProfilesParsing_Demo/index.php`，样例结果如图。
+![WebDemo ScreenShot](https://github.com/csyoungz/Profiles_Parsing/tree/master/Docs/Images/WebDemo.png)
 
 ## 四.开发日志
 - 0331: 修复 时间表达提取，支持多个相近的时间表达融合; 准备些英文ReadMe;

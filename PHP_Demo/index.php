@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="utf-8"/>
+    <meta charset="UTF-8"/>
     <title>Demo of Profiles Parsing.</title>
 </head>
 
@@ -26,10 +26,12 @@
         </br>
         <input type="submit" value="提交简历内容" style="height: 50px; width: 100px"></input>
     </form>
-
+	<a href='Input/PProfile_a.txt'>简历示例文件A </a>
+	<a href='Input/PProfile_b.txt'>简历示例文件B </a> (可能需要设置浏览器UTF-8编码格式浏览。)
     <hr />
     <h2>输出：简历解析结构化结果</h2>
-    <?php
+<?php
+		header("Content-type: text/html; charset=utf-8");
         $profile_content = "Profile_content";
         $basic_info = "";
         $working_info = "";

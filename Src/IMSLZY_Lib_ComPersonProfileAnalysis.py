@@ -474,6 +474,7 @@ def Get_Seqs_and_Times(OrgName):
 
     for hid_time_syn in Hidden_Time_Syn_List:
         if hid_time_syn in postag_words_seq:
+            print "hid_time_syn = ", hid_time_syn
             for find_id in Added_List_Index_All(postag_words_seq, hid_time_syn):
                 TimeSeqStart.append(find_id)
                 TimeSeqEnd.append(find_id)
@@ -1110,7 +1111,7 @@ def Divide_Pre_Cur_Working(ProfileStr):
     Maybe_Working_WordsList = [u"现任", u"曾任", u"担任", u"任职", u"历任", u"兼任", u"任", u"兼", u"经理", u"董事", u"监事", u"部长", u"委员", u"会长", u"秘书长", u"处长", u"工程师"]
 
     pre_tag_list = [u"历任", u"曾任", u"任职", u"任", u"工作", u"先后", u"就任", u"就职于", u"就职", u"创办", u"创立", u"创建", u"擢升"]
-    cur_tag_list = [u"现任", u"至今", u"目前", u"兼任", u"起任", u"起"]
+    cur_tag_list = [u"现任", u"至今", u"目前", u"兼任", u"起任", u"起", u"兼职情况："]
     pre_sents_list = []
     cur_sents_list = []
     info_sents_list = []
@@ -1121,7 +1122,7 @@ def Divide_Pre_Cur_Working(ProfileStr):
             info_sents_list.append(working_sent)
             # print "info sent = ",working_sent
         elif(Check_ListItem_In_Content(cur_tag_list, working_sent)):
-            # print "cur sent = ",working_sent
+            print "cur sent = ",working_sent
             cur_sents_list.append(working_sent)
         elif(Check_ListItem_In_Content(pre_tag_list, working_sent)):
             # print "pre sent = ",working_sent

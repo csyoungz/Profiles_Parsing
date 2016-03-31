@@ -33,7 +33,7 @@ OrgName_Ends_List = Editable_Org_Names_List + OrgName_Ends_List
 
 Invalid_Org_Names_List = [u"参加", u"项目"]
 
-Hidden_Time_Syn_List = [u"现任", u"曾", u"曾任", u"曾任职", u"历任", u"目前", u"先后", u"就任", u"兼任", u"就职于"]
+Hidden_Time_Syn_List = [u"现任", u"曾", u"曾任", u"曾任职", u"历任", u"目前", u"先后", u"就任", u"兼任", u"就职于", u"兼职情况"]
 Basic_info_Syn_List = [u"出生", u"岁", u"毕业", u"学历", u"国籍", u"汉族", u"攻读", u"硕士",u"大专", u"工商管理学士", u"就读", u"男", u"女"]
 
 
