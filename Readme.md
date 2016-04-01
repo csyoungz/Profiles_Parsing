@@ -9,6 +9,8 @@
 
 技术上依赖于**中文分词及词性标注**。期待试用统计的方法。
 
+Demo 演示页面：[企业存照-简历解析模块](`192.168.0.178/ProfilesParsing_Demo/demo_index.php`)。
+
 主要作者：*IMSL实习生张杨*，<a href="yang.zhang@imsl.org.cn">yang.zhang@imsl.org.cn</a>。
 
 
@@ -16,6 +18,8 @@
 ```
 .
 |-- Docs												项目文档
+|-- PHP_Demo
+	`--index.php									Web Demo 测试PHP文件
 |-- Resource
 |	`-- dict.txt										待替换的Jieba分词词典
 |-- Readme.txt											说明文档
@@ -42,6 +46,7 @@
 ## 三. 程序使用说明
 程序在 Server 192.168.0.17上经过测试可用。
 
+### 1. 概览：准备步骤、运行环境、输入输出与数据格式
 - 步骤：
 	- 更新词典
 	需要更新 `Jieba` 分词工具词典，词典在 `Resource/dict.txt` 中。
@@ -79,17 +84,25 @@ Person_Profile_Data_Init = {
 		]
     }
 ```
+### 2. 批量测试
+输入包含多人的简历文件，先利用 `IMSLZY_Seg_PersonProfiles.py进行分割，再使用 php 脚本进行批量测试。
 
-
+假设输入文件为 `profile.txt`放`Input/`目录下。
 - 举例说明
-	- Step-1：进入`Test`目录，分割文件: `pythonInput/profile.txt`;
+	- Step-0：清空 `OutputMulti/`目录
+	- Step-1：进入`Test`目录，分割文件: `python IMSLZY_Seg_PErsonProfiles.py Input/profile.txt`;
 	- Step-2：测试基本资料结果：`php -q test_Basic_Info.php`
 	- Step-3：测试工作经历结果：`php -q test_Working_Exp.php`
 
-- 说明
-	每次最好先清空 ` OutpuMulti ` 目录。
+### 3. Web Demo
+为模块功能展示的动态网页页面目录。
+将 `PHP_Demo`目录放在浏览器可访问目录下，根据具体情况修改 `demo_index.php`, 具体为内部的`$exec_pyfilename`变量，注意写完整路径。
+
+在本机上可直接使用，URL=`192.168.0.178/ProfilesParsing_Demo/demo_index.php`。
 
 ## 四.开发日志
+- 0329：完成 Demo 演示页面
+- 0324：修复第二批数据 Test/Input/company_0311.txt`中的Bugs
 
 ## 五.问题与待解决
 - 遗留问题
